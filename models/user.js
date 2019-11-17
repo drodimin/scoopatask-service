@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
         }
     },
     password:{
-        type:String,
-        required:true,
+        type: String,
+        required: false,
         trim:true,
         minlength: 7,
         validate(value){
@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }],
+    google: {
+        access_token: String,
+        refresh_token: String,
+        scope: String,
+        token_type: String,
+        id_token: String,
+        expiry_date: Date
+    },
     createdAt:{
       type: Date,
       default: Date.now

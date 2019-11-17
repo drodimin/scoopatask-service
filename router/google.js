@@ -12,3 +12,13 @@ router.get('/googleurl', async (req, res) => {
         res.status(400).send(e)
     }
 })
+
+router.get('/googlecode', async (req, res) => {
+    try{
+        code = req.query.code;
+        googleauth.getToken(code)
+        res.status(201).send(url)
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
