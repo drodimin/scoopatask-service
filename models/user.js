@@ -74,6 +74,20 @@ const userSchema = new mongoose.Schema({
     return user
 }
 
+userSchema.statics.saveGoogleTokens = async (email, tokens) => {
+    console.log("Saving google tokens for " + email);
+    let user = await User.findOne({email});
+    if(!user){
+        console.log("User " + email + " not found. Creating new.");
+        let user = new User();
+        user.email = email;                           
+    }
+    user.google = tokens;
+    await user.save();
+    console.log("User saved");
+    return user;
+}
+
 userSchema.methods.newAuthToken = async function(){
     const user  = this
     let token;
