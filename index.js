@@ -2,6 +2,7 @@ var express = require('express');
 var cors = require('cors');
 const userRoutes = require('./router/user');
 const googleRoutes = require('./router/google');
+const bucketRoutes = require('./router/bucket');
 const database = require('./database');
 
 
@@ -24,6 +25,7 @@ app.get('/', function(req, res){
 
 app.use(userRoutes);
 app.use(googleRoutes);
+app.use(bucketRoutes);
 
 const port = process.env.PORT || 3005;
 app.listen(port, () => console.log('server started on port', port));

@@ -15,7 +15,8 @@ class GoogleAuth{
     }
     
     createUrl() {
-        return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
+        //return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
+        return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES});
     }
 
     async handleAccessCode(code, userCallBack) {
@@ -36,6 +37,11 @@ class GoogleAuth{
                 });
             }
         });
+    }
+
+    saveToDrive(data, user){
+        console.log("User:", user);
+        console.log("Saving data", JSON.stringify(data));
     }
 }
 

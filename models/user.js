@@ -79,7 +79,7 @@ userSchema.statics.saveGoogleTokens = async (email, tokens) => {
     let user = await User.findOne({email});
     if(!user){
         console.log("User " + email + " not found. Creating new.");
-        let user = new User();
+        user = new User();
         user.email = email;                           
     }
     user.google = tokens;
