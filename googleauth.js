@@ -40,9 +40,9 @@ class GoogleAuth{
     }
 
     saveToDrive(data, user){
-        console.log("User:", user);
+        console.log("User:", user.email);
         console.log("Saving data", JSON.stringify(data));
     }
 }
 
-module.exports = new GoogleAuth()
+module.exports = new GoogleAuth();
