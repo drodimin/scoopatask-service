@@ -20,7 +20,7 @@ class GoogleAuth{
     }
 
     async handleAccessCode(code, userCallBack) {
-        const client =  this.createAuthClient();;
+        const client =  this.createAuthClient();
         client.getToken(code, async function (err, tokens) {
             console.log(tokens);
             if (err) {
@@ -41,8 +41,42 @@ class GoogleAuth{
 
     saveToDrive(data, user){
         console.log("User:", user);
-        console.log("Saving data", JSON.stringify(data));
+        console.log("Saving data", data);
+        return new Promise((resolve, reject) => {
+            let client = this.createAuthClient();
+            client.setCredentials(user.google);
+            this.upload(JSON.stringify(data), client)
+                .then(file => { return resolve(file)})
+                .catch(err => { return reject(err)});
+        });
+    }
+
+    upload(data, client)
+    {
+        return new Promise((resolve, reject) => {
+            const drive = google.drive({version: 'v3', client});
+            var fileMetadata = {
+                'name': 'data.json',
+                'parents': ['appDataFolder']
+            };
+            var media = {
+                mimeType: 'application/json',
+                body: data
+            };
+            drive.files.create({
+                    resource: fileMetadata,
+                    media: media,
+                    fields: 'id'
+                }, function (err, file) {
+                    if (err) {
+                        return reject(err)
+                    } else {
+                        console.log("Uploaded:", file);
+                        resolve(file);
+                    }
+                });
+        });
     }
 }
 
-module.exports = new GoogleAuth()
+module.exports = new GoogleAuth();
