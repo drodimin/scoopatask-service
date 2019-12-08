@@ -15,7 +15,4 @@ class AppData {
   }
 }
 
-class Bucket {
-}
-
 module.exports = new AppData()

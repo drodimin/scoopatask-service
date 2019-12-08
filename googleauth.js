@@ -40,7 +40,7 @@ class GoogleAuth{
     }
 
     saveToDrive(data, user){
-        console.log("User:", user);
+        console.log("User:", user.email);
         console.log("Saving data", data);
         return new Promise((resolve, reject) => {
             let client = this.createAuthClient();
