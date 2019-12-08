@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema({
         }
     },
     password:{
-        type:String,
-        required:true,
+        type: String,
+        required: false,
         trim:true,
         minlength: 7,
         validate(value){
@@ -37,6 +37,14 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }],
+    google: {
+        access_token: String,
+        refresh_token: String,
+        scope: String,
+        token_type: String,
+        id_token: String,
+        expiry_date: Date
+    },
     createdAt:{
       type: Date,
       default: Date.now
@@ -64,6 +72,20 @@ const userSchema = new mongoose.Schema({
     }
 
     return user
+}
+
+userSchema.statics.saveGoogleTokens = async (email, tokens) => {
+    console.log("Saving google tokens for " + email);
+    let user = await User.findOne({email});
+    if(!user){
+        console.log("User " + email + " not found. Creating new.");
+        user = new User();
+        user.email = email;                           
+    }
+    user.google = tokens;
+    await user.save();
+    console.log("User saved");
+    return user;
 }
 
 userSchema.methods.newAuthToken = async function(){
