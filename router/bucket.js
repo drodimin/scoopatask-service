@@ -8,7 +8,9 @@ module.exports = router;
 
 router.post('/bucket', authenticate, async (req, res) => {
     try {
+        console.log("Adding bucket", req.body);
         let newBucket = appData.addBucket(req.body);
+        console.log("Added bucket", req.body, newBucket);
         res.send(newBucket);
         googleauth.saveToDrive(appData, req.user);
     } catch (error) {
