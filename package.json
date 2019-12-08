@@ -19,6 +19,7 @@
     "https-proxy-agent": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.3",
+    "shortid": "^2.2.15",
     "validator": "^12.0.0"
   }
 }
