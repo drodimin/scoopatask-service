@@ -3,8 +3,6 @@ var cors = require('cors');
 const userRoutes = require('./router/user');
 const googleRoutes = require('./router/google');
 const bucketRoutes = require('./router/bucket');
-const database = require('./database');
-
 
 const dotenv = require('dotenv');
 dotenv.config();
