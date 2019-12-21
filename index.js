@@ -8,7 +8,6 @@ const utilRoutes = require('./router/utils');
 const appDataRoutes = require('./router/appdata');
 const guestRoutes = require('./router/guest');
 
-var database = require('./database');
 
 const dotenv = require('dotenv');
 dotenv.config();
