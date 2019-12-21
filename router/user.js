@@ -3,7 +3,7 @@ const router      =  new express.Router()
 const User        = require('../models/user')
 const {ObjectID}  = require('mongodb')
 
-const authenticate  = require('../auth_middleware')
+const authenticate  = require('../auth_middleware');
 module.exports = router
 
 router.post('/users', async (req,res) => {
@@ -67,7 +67,7 @@ router.delete('/users/me', authenticate, async (req,res) => {
     }
 })
 
-router.post('/users/logout', authenticate, async (req, res) => {
+router.get('/users/logout', authenticate, async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((token) =>{
          return token.token !== req.token 

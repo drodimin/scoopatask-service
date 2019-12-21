@@ -3,15 +3,24 @@ const User = require('./models/user')
 
 const auth = async (req,res,next) => {
     try {
+        console.log(req.route);
         const token = req.header('Authorization').replace('Bearer', '').trim()
         
         const decoded  = jwt.verify(token, process.env.JWT_SECRET)
        
-        const user  = await User.findOne({ _id:decoded._id, 'tokens.token': token})
+        console.log("Authorizing request...", decoded);
+
+        let user;
+        if(decoded.isGuest) {
+            user = new User({email:'guest_' + decoded._id, isGuest: true});
+        } else {
+            user  = await User.findOne({ _id:decoded._id, 'tokens.token': token});
+        }
 
         if(!user){
-            throw new Error()
+            throw new Error("")
         }
+        console.log("Authorized User", user.email);
         req.token = token
         req.user = user
         next()

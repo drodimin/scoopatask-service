@@ -1,8 +1,8 @@
 
-const mongoose  = require('mongoose')
-const validator = require('validator')
-const bcrypt    = require('bcryptjs')
-const jwt       = require('jsonwebtoken')
+const mongoose  = require('mongoose');
+const validator = require('validator');
+const bcrypt    = require('bcryptjs');
+const utils = require('../utils');
 
 const userSchema = new mongoose.Schema({    
     email:{
@@ -92,7 +92,7 @@ userSchema.methods.newAuthToken = async function(){
     const user  = this
     let token;
     try{
-          token = jwt.sign({ _id: user.id.toString() },process.env.JWT_SECRET);
+          token = utils.createJWT(user.id);
     }catch(e){
         console.log(e);
     }
