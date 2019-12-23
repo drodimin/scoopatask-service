@@ -2,6 +2,7 @@ const express     = require('express');
 const googleauth = require('../googleauth');
 const router      =  new express.Router();
 const User        = require('../models/user')
+const utils       = require('../utils')
 
 module.exports = router
 
@@ -17,14 +18,14 @@ router.get('/googleurl', async (req, res) => {
 router.get('/googlecode', async (req, res) => {
     try{
         code = req.query.code;
-        console.log("Authorizing in with access code:" + code);
+        console.log("Authorizing with access code:" + code);
         const user = await googleauth.handleAccessCode(code, async function(user){
-            console.log("User:" + user);
+            console.log("User", user);
             if(user)
             {
-                const token = await user.newAuthToken();
+                const token =await User.newAuthToken(user);
                 console.log("Token:" + token);
-                res.send({ user, token})
+                res.send({ emai:user.email, token:token})
             }
             else
             {

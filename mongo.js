@@ -1,7 +1,12 @@
 
 const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
+const dotenv = require('dotenv');
+dotenv.config();
 const DATABASE_NAME = 'scoopatask';
+const db_user= process.env.DB_USER;
+const db_password = process.env.DB_PASSWORD;
+const db_server = process.env.DB_SERVER;
 
 class Database {
     connect() {
@@ -9,10 +14,13 @@ class Database {
         return new Promise((resolve, reject) => {
             if(this.isConnected && this.db) {
                 console.log('Reusing existing connection');
-                resolve(db);
+                resolve(this.db);
             } else {
                 console.log('Creating mongo client');
-                this.client = MongoClient.connect("mongodb://localhost:27017", { useNewUrlParser: true, useUnifiedTopology: true  })
+                //this.client = MongoClient.connect("mongodb://localhost:27017", { useNewUrlParser: true, useUnifiedTopology: true  })
+                const connectionString = `mongodb+srv://${db_user}:${db_password}@${db_server}`;
+                console.log(connectionString);
+                this.client = MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true  })
                 .then((res) => {
                     this.isConnected = true;
                     this.db = res.db(DATABASE_NAME);;

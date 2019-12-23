@@ -17,7 +17,13 @@ const auth = async (req,res,next) => {
         } else {
             const db = await mongo.database.connect();
             const collection = db.collection('users');
-            const query = { _id: mongo.ObjectID(decoded._id) };
+
+            const allusers = await collection.find().toArray();
+            allusers.forEach(element => {
+                console.log(element.tokens);
+            });
+
+            const query = { _id: mongo.ObjectID(decoded._id), 'tokens.token': token };
             console.log(query);
             const users = await collection.find(query).toArray();
             console.log(users);

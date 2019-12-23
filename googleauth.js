@@ -36,7 +36,6 @@ class GoogleAuth{
     async handleAccessCode(code, userCallBack) {
         const client =  this.createAuthClient();
         client.getToken(code, async function (err, tokens) {
-            console.log(tokens);
             if (err) {
                 console.log(err);
             } else {
