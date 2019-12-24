@@ -1,9 +1,10 @@
 const shortid = require('shortid');
 
-class AppData {
+module.exports = class AppData {
   
-  constructor() {
+  constructor(obj) {
       this._buckets = [];
+      obj && Object.assign(this, obj);
   }
   
   addBucket(bucket){
@@ -14,5 +15,3 @@ class AppData {
     return bucket;
   }
 }
-
-module.exports = new AppData()
