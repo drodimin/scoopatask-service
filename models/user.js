@@ -36,18 +36,33 @@ class User {
         return user;
     }
 
-    static async newAuthToken(user) {
-        console.log("Generating new auth token for " + user.email);
+    static async createToken(user) {
+        console.log(`Generating new auth token for ${user.email}`);
+        const token = utils.createJWT(user._id);
+        const tokens = user.tokens.concat({ token });
+
+        await User.updateTokens(user._id, tokens);
+        return token;
+    }
+
+    static async removeToken(user, token) {
+        console.log(`Removing ${token} for ${user.email}`);
+        console.log("Current tokens", user.tokens);
+
+        const tokens = user.tokens.filter((token) =>{
+            return token.token !== token 
+           });
+        console.log("New tokens", tokens);
+        await User.updateTokens(user._id, tokens);
+    }
+
+    static async updateTokens(id, tokens) {
         const db = await mongo.database.connect();
         const collection = db.collection('users');
-
-        const token = utils.createJWT(user._id);
-        user.tokens.concat({ token })
-        const query = { _id: mongo.ObjectID(user._id)};
-        console.log("query", query);
-        const res = await collection.updateOne(query, {$set: {tokens: user.tokens}});
-        console.log("updated", res.result.n, res.result.nModified); 
-        return token;
+        const query = { _id: id};
+        console.log("updating tokens", query, tokens);
+        const res = await collection.updateOne(query, {$set: {tokens: tokens}});
+        console.log("updated", res.matchedCount, res.modifiedCount); 
     }
 }
 

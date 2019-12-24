@@ -4,7 +4,7 @@ const mongo = require("./mongo");
 
 const auth = async (req,res,next) => {
     try {
-        console.log(req.route);
+        console.log(req.route.path);
         const token = req.header('Authorization').replace('Bearer', '').trim()
         
         const decoded  = jwt.verify(token, process.env.JWT_SECRET)
@@ -18,23 +18,20 @@ const auth = async (req,res,next) => {
             const db = await mongo.database.connect();
             const collection = db.collection('users');
 
+            /*
             const allusers = await collection.find().toArray();
             allusers.forEach(element => {
                 console.log(element.tokens);
             });
+            */
 
             const query = { _id: mongo.ObjectID(decoded._id), 'tokens.token': token };
-            console.log(query);
+            console.log("query", query);
             const users = await collection.find(query).toArray();
-            console.log(users);
             if(!users || users.length !== 1) {
                 throw new Error('User not found');
             }
             user = users[0];
-            console.log(user);
-        }
-        if(!user){
-            throw new Error('User not found');
         }
         console.log("Authorized User", user.email);
         req.token = token

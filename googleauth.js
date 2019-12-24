@@ -57,12 +57,28 @@ class GoogleAuth{
         console.log("User:", user.email);
         console.log("Saving data", data);
         return new Promise((resolve, reject) => {
-            let client = this.createAuthClient();
-            client.setCredentials(user.google);
-            console.log("client", client);
-            this.upload(JSON.stringify(data), client)
-                .then(file => { return resolve(file)})
-                .catch(err => { return reject(err)});
+            const drive = this.createDriveClient(user.google);
+            this.find(drive, DATA_FILE_NAME)
+                .then(files => {
+                    console.log("Files", files);
+                    if(files.length === 1) {
+                        this.update(drive, files[0].id, JSON.stringify(data))
+                            .then(file => { 
+                                console.log("Resolving saveDataToDrive 1");
+                                resolve(file)
+                            })
+                            .catch(err => { reject(err)});
+                    } else if(files.length === 0) {
+                        this.upload(JSON.stringify(data), drive)
+                            .then(file => { 
+                                console.log("Resolving saveDataToDrive 2");
+                                resolve(file)
+                            })
+                            .catch(err => { reject(err)});
+                    } else {
+                        reject("found multilple " + DATA_FILE_NAME);
+                    }
+                })
         });
     }
 
@@ -76,7 +92,7 @@ class GoogleAuth{
                     if(files.length === 1) {
                         return this.get(drive, files[0].id);
                     } else if(files.length === 0) {
-                        throw DATA_FILE_NAME + " not found";
+                        return {};
                     } else {
                         throw "found multilple " + DATA_FILE_NAME;
                     }
@@ -96,12 +112,10 @@ class GoogleAuth{
         });
     }
 
-    upload(data, client)
+    upload(data, drive)
     {
         return new Promise((resolve, reject) => {
             console.log("Uploading", data);
-            const drive = google.drive({version: 'v3', auth: client});
-            console.log("drive", drive);
             var fileMetadata = {
                 'name': 'data.json',
                 'parents': ['appDataFolder']
@@ -119,7 +133,7 @@ class GoogleAuth{
                         console.log("Drive error", err);
                         reject(err)
                     } else {
-                        console.log("Uploaded:", file);
+                        console.log("Uploaded:", file.data);
                         resolve(file);
                     }
                 });
@@ -143,7 +157,7 @@ class GoogleAuth{
             });
         });
     }
-
+    
     find(drive, filename){
         console.log("Find file", filename);
         return new Promise((resolve, reject) => {            
@@ -178,6 +192,42 @@ class GoogleAuth{
                 }
             });
         });
+    }
+
+    update(drive, fileid, data){
+        console.log("Updating file", fileid);
+        return new Promise((resolve, reject) => {
+            drive.files.update({
+                fileId: fileid,
+                media: {
+                    mimeType: 'application/json',
+                    body: data
+                }},
+                function (err, file) {
+                    if (err) {
+                        console.log("Drive error", err);
+                        reject(err);
+                    } else {
+                        resolve(file);
+                    }
+                });     
+            }); 
+    }
+
+    delete(drive, fileid){
+        console.log("Deleting file", fileid);
+        return new Promise((resolve, reject) => {
+            drive.files.delete({
+                fileId: fileid},
+                function (err, file) {
+                    if (err) {
+                        console.log("Drive error", err);
+                        reject(err);
+                    } else {
+                        resolve(file);
+                    }
+                }); 
+        });     
     }
     
 }

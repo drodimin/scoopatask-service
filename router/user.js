@@ -69,12 +69,10 @@ router.delete('/users/me', authenticate, async (req,res) => {
 
 router.get('/users/logout', authenticate, async (req, res) => {
     try {
-        req.user.tokens = req.user.tokens.filter((token) =>{
-         return token.token !== req.token 
-        })
-        await req.user.save()
+        await User.removeToken(req.user, req.token);
         res.send()
     } catch (error) {
+        console.log("Internal server error", error);
         res.status(500).send()
     }
 })

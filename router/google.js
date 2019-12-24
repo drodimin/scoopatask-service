@@ -1,8 +1,9 @@
 const express     = require('express');
 const googleauth = require('../googleauth');
 const router      =  new express.Router();
-const User        = require('../models/user')
-const utils       = require('../utils')
+const User        = require('../models/user');
+const utils       = require('../utils');
+const usercache = require('../usercache');
 
 module.exports = router
 
@@ -23,8 +24,11 @@ router.get('/googlecode', async (req, res) => {
             console.log("User", user);
             if(user)
             {
-                const token =await User.newAuthToken(user);
+                const token =await User.createToken(user);
                 console.log("Token:" + token);
+
+                //start loading user data asyncronously
+                usercache.set(user.email, googleauth.loadDataFromDrive(user));
                 res.send({ emai:user.email, token:token})
             }
             else
@@ -33,6 +37,7 @@ router.get('/googlecode', async (req, res) => {
             }
         });
     }catch(e){
+        console.log(e);
         res.status(400).send(e)
     }
 })

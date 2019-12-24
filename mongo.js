@@ -19,7 +19,7 @@ class Database {
                 console.log('Creating mongo client');
                 //this.client = MongoClient.connect("mongodb://localhost:27017", { useNewUrlParser: true, useUnifiedTopology: true  })
                 const connectionString = `mongodb+srv://${db_user}:${db_password}@${db_server}`;
-                console.log(connectionString);
+                //console.log(connectionString);
                 this.client = MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true  })
                 .then((res) => {
                     this.isConnected = true;

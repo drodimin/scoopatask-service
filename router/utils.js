@@ -62,3 +62,23 @@ router.get('/filedata/:fileid', authenticate, async (req, res) => {
         res.status(400).send()        
     }
 })
+
+router.delete('/filedata/:fileid', authenticate, async (req, res) => {
+    try {    
+        const fileid = req.params['fileid'];
+        const drive = googleauth.createDriveClient(req.user.google);
+
+        googleauth.delete(drive, fileid)
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch((err) => {
+            console.log("Failed to delete file", err);
+            res.status(500).send();
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(400).send()        
+    }
+})

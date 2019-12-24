@@ -1,16 +1,15 @@
 const express     = require('express');
 const router      =  new express.Router();
 const authenticate  = require('../auth_middleware');
-const googleauth = require('../googleauth');
+const usercache = require('../usercache');
 
 module.exports = router;
 
 router.get('/appdata', authenticate, async (req, res) => {
     try {
         console.log("Get AppData");
-        googleauth.loadDataFromDrive(req.user)
-        .then(appdata => { res.send(appdata) })
-        .catch(err => { res.status(500).send(err) });
+        const data = await usercache.getOrCreate(req.user.email);
+        res.send(data);
     } catch (error) {
         res.status(400).send()        
     }
