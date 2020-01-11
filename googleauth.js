@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 const User = require('./models/user');
 let mongoose = require('mongoose');
+const AppData = require('./appdata');
 dotenv.config();
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.appdata','https://www.googleapis.com/auth/userinfo.email']
@@ -188,7 +189,7 @@ class GoogleAuth{
                     console.log("Drive error", err);
                     reject(err);
                 } else {
-                    resolve(res.data);
+                    resolve(new AppData(res.data));
                 }
             });
         });

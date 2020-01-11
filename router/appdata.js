@@ -8,7 +8,7 @@ module.exports = router;
 router.get('/appdata', authenticate, async (req, res) => {
     try {
         console.log("Get AppData");
-        const data = await usercache.getOrCreate(req.user.email);
+        const data = await usercache.getOrCreate(req.user);
         res.send(data);
     } catch (error) {
         res.status(400).send()        

@@ -2,13 +2,14 @@ const mongo = require("../mongo");
 const utils = require("../utils");
 
 class User {
-    constructor(email) {
+    constructor(email, isGuest = false) {
         const now = Date.now();
         this.createdAt = now;
         this.lastLoggedAt = now;
         this.updatedAt = now;
         this.email = email;
         this.tokens = [];
+        this.isGuest = isGuest;
     }
 
     static async saveGoogleTokens(email, tokens) {
@@ -49,9 +50,7 @@ class User {
         console.log(`Removing ${token} for ${user.email}`);
         console.log("Current tokens", user.tokens);
 
-        const tokens = user.tokens.filter((token) =>{
-            return token.token !== token 
-           });
+        const tokens = user.tokens.filter(t => t.token !== token);
         console.log("New tokens", tokens);
         await User.updateTokens(user._id, tokens);
     }
