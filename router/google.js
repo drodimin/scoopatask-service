@@ -28,7 +28,7 @@ router.get('/googlecode', async (req, res) => {
                 console.log("Token:" + token);
 
                 //start loading user data asyncronously
-                usercache.set(user.email, googleauth.loadDataFromDrive(user));
+                usercache.getOrCreate(user);
                 res.send({ emai:user.email, token:token})
             }
             else

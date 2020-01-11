@@ -9,7 +9,8 @@ router.get('/guestlogin', async (req,res) => {
     try{
         //generate id for guest
         const id = shortid.generate();
-        const token = await utils.createJWT(id);
+        const token = await utils.createJWT(id, true);
+        console.log("generated guest token for", id);
         res.status(201).send({token});
     }catch(e){
         res.status(400).send(e)

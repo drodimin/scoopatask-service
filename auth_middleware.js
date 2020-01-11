@@ -13,7 +13,7 @@ const auth = async (req,res,next) => {
 
         let user;
         if(decoded.isGuest) {
-            user = new User({email:'guest_' + decoded._id, isGuest: true});
+            user = new User('guest_' + decoded._id, true);
         } else {
             const db = await mongo.database.connect();
             const collection = db.collection('users');
@@ -39,7 +39,11 @@ const auth = async (req,res,next) => {
         next()
     } catch (error) {
         console.log(error);
-        res.status(401).send({error:'Please authenticate!'})
+        if (error.errno === 'ECONNREFUSED') {
+            res.status(500).send();
+        } else {
+            res.status(401).send({error:'Please authenticate!'});
+        }
     }
 }
 
