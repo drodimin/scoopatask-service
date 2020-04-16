@@ -16,7 +16,7 @@ var app = express();
 app.use(express.json());
 
 var corsOptions = {
-  origin: ['http://localhost:8080','http://localhost:8085', 'https://gallant-edison-0dd970.netlify.com'],
+  origin: ['http://localhost:8080','http://localhost:8085', 'https://gallant-edison-0dd970.netlify.app'],
   optionsSuccessStatus: 200
 }
 
