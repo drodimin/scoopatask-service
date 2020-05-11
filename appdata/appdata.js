@@ -1,5 +1,7 @@
 const shortid = require('shortid');
-const exceptions = require('./exceptions');
+const exceptions = require('../exceptions');
+const Bucket = require('./bucket');
+const utils = require('../utils');
 
 module.exports = class AppData {
   constructor(obj) {
@@ -44,33 +46,30 @@ module.exports = class AppData {
       throw new exceptions.InvalidIdException(`Bucket with id ${bucketId} doesn't exist`);
     }
     console.log('deleting task in bucket', bucket)
-    bucket.delete(taskId);
+    bucket.deleteTask(taskId);
     return bucket;
   }
-}
 
-class Bucket {
-  constructor(obj) {
-    this._id = shortid.generate();
-    this.created = Date.now;
-    this.updated = Date.now;
-    this._tasks = [];
-    obj && Object.assign(this, obj);
-  }
-
-  add(task) {
-    task._id = shortid.generate();
-    task.created = Date.now;
-    task.updated = Date.now;
-    this._tasks.push(task);
-  }
-
-  delete(taskId) {
-    const task = this._tasks.find(task => task._id === taskId);
-    if(!task) {
-      throw new exceptions.InvalidIdException(`Task with id ${taskId} doesn't exist`);
+  updateTask(bucketId, taskId, task) {    
+    const bucket = this._buckets.find(bucket => bucket._id === bucketId);
+    if(!bucket) {
+      throw new exceptions.InvalidIdException(`Bucket with id ${bucketId} doesn't exist`);
     }
-    this._tasks = this._tasks.filter(task => task._id !== taskId);
-    return task;
+    console.log('updating task in bucket', bucket._id)
+    bucket.updateTask(taskId, task);
+    return bucket;
+  }
+
+  completeTask(bucketId, taskId) {
+    const bucket = this._buckets.find(bucket => bucket._id === bucketId);
+    if(!bucket) {
+      throw new exceptions.InvalidIdException(`Bucket with id ${bucketId} doesn't exist`);
+    }
+    console.log('completing task in bucket', bucket._id);
+    const completedTask = bucket.completeTask(taskId);
+    completedTask.completedDate = new Date();
+    const completedBucket = utils.pick(bucket, ['_id','name']);
+    completedBucket._tasks = [completedTask];
+    return completedBucket;
   }
 }

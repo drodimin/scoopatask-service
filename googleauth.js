@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const User = require('./models/user');
 let mongoose = require('mongoose');
-const AppData = require('./appdata');
+const AppData = require('./appdata/appdata');
 dotenv.config();
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.appdata','https://www.googleapis.com/auth/userinfo.email']
@@ -30,7 +30,7 @@ class GoogleAuth{
     }
     
     createUrl() {
-        //return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
+        //return this.createAuthClient().AuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
         return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
     }
 
