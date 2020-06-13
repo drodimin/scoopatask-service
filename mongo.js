@@ -3,7 +3,7 @@ const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
 const dotenv = require('dotenv');
 dotenv.config();
-const DATABASE_NAME = 'scoopatask';
+const DATABASE_NAME = process.env.DATABASE_NAME;
 const db_user= process.env.DB_USER;
 const db_password = process.env.DB_PASSWORD;
 const db_server = process.env.DB_SERVER;

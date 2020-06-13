@@ -1,6 +1,5 @@
 const dotenv = require('dotenv');
 const User = require('./models/user');
-let mongoose = require('mongoose');
 const AppData = require('./appdata/appdata');
 dotenv.config();
 
