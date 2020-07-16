@@ -18,19 +18,19 @@ router.get('/googleurl', async (req, res) => {
 
 router.get('/googlecode', async (req, res) => {
     try{
-        code = req.query.code;
+        const code = req.query.code;
         console.log("Authorizing with access code:" + code);
-        const user = await googleauth.handleAccessCode(code, async function(user){
-            console.log("User", user);
-            if(user)
-            {
-                const token =await User.createToken(user);
-                console.log("Token:" + token);
+        const user = await googleauth.signInUserWithAccessCode(code);
+        if(user)
+        {
+            console.log("User signed in", user);
+            const token = await User.createToken(user);
+            console.log("New application token:" + token);
 
-                //start loading user data asyncronously
-                usercache.getOrCreateUserData(user);
-                res.send({ emai:user.email, token:token})
-            }
+            //start loading user data asyncronously
+            usercache.getOrCreateUserData(user);
+            res.send({ emai:user.email, token:token})
+        }
             else
             {
                 res.status(400).send() 

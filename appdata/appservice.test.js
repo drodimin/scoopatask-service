@@ -3,7 +3,7 @@ const userCache = require('../usercache');
 const AppData = require('./appdata');
 const HistoryData = require('./historydata');
 const Bucket = require('./bucket');
-const googleauth = require('../googleauth');
+const services = require('../services');
 
 describe('completeTask', () => {
     const taskId = 't';
@@ -13,15 +13,17 @@ describe('completeTask', () => {
     const user = {email:'abc'};
     const appData = new AppData();
     const historyData = new HistoryData();
+
+    const mockDriveService = { saveDataToDrive: jest.fn(), saveHistoryDataToDrive: jest.fn()}
+    services.driveService = mockDriveService;
     
     beforeEach(()=>{
         userCache.getOrCreateUserData = jest.fn(()=>appData);
         userCache.getOrCreateUserHistoryData = jest.fn(()=>historyData);
         appData.completeTask = jest.fn(()=>bucket);
         historyData.addBucket = jest.fn(()=>bucket);
-        googleauth.saveDataToDrive = jest.fn();
-        googleauth.saveHistoryDataToDrive = jest.fn();
     })
+
     it('gets user data on the cache', async()=>{
         //act
         await appService.completeTask('a', 'b', user);
@@ -56,11 +58,23 @@ describe('completeTask', () => {
         expect(result).toEqual(bucket);
     })
 
-    it('saves user data and history data', async()=>{
+    it('saves user data and history data if user is not Guest', async()=>{
         //act
         let result = await appService.completeTask(bucketId, taskId, user);
         //assert
-        expect(googleauth.saveDataToDrive).toHaveBeenCalledWith(appData, user);
-        expect(googleauth.saveHistoryDataToDrive).toHaveBeenCalledWith(historyData, user);
+        expect(mockDriveService.saveDataToDrive).toHaveBeenCalledWith(appData, user);
+        expect(mockDriveService.saveHistoryDataToDrive).toHaveBeenCalledWith(historyData, user);
+    })
+
+    it('does not save user data and history data if user is Guest', async()=>{
+        // Arrange
+        user.isGuest = true;
+
+        //act
+        let result = await appService.completeTask(bucketId, taskId, user);
+
+        //assert
+        expect(mockDriveService.saveDataToDrive).not.toHaveBeenCalled();
+        expect(mockDriveService.saveHistoryDataToDrive).not.toHaveBeenCalled();
     })
 })

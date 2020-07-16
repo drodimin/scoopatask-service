@@ -2,12 +2,15 @@ const express     = require('express');
 const router      =  new express.Router();
 const authenticate  = require('../auth_middleware');
 const googleauth = require('../googleauth');
+const services = require('../services');
+const DriveClient = require('drive-appdata-client');
 
 module.exports = router;
 
 router.get('/files', authenticate, async (req, res) => {
-    try {     
-        googleauth.listFiles(req.user)
+    try {    
+        const driveClient = new DriveClient(googleauth.createAuthClient(req.user.google));
+        driveClient.listFiles(req.user)
         .then(files => {
 
             console.log(files);
@@ -46,9 +49,9 @@ router.get('/file/:filename', authenticate, async (req, res) => {
 router.get('/filedata/:fileid', authenticate, async (req, res) => {
     try {    
         const fileid = req.params['fileid'];
-        const drive = googleauth.createDriveClient(req.user.google);
+        const driveClient = new DriveClient(googleauth.createAuthClient(req.user.google));
 
-        googleauth.get(drive, fileid)
+        driveClient.get(fileId)
         .then(data => {
             console.log(data);
             res.send(data);
@@ -66,9 +69,8 @@ router.get('/filedata/:fileid', authenticate, async (req, res) => {
 router.delete('/filedata/:fileid', authenticate, async (req, res) => {
     try {    
         const fileid = req.params['fileid'];
-        const drive = googleauth.createDriveClient(req.user.google);
-
-        googleauth.delete(drive, fileid)
+        const driveClient = new DriveClient(googleauth.createAuthClient(req.user.google));
+        driveClient.delete(drive, fileid)
         .then(data => {
             console.log(data);
             res.send(data);

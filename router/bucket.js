@@ -117,13 +117,8 @@ router.get('/bucket/:bucketId/task/:taskId/complete', authenticate, async (req, 
         const bucketId = req.params['bucketId'];
         const taskId = req.params['taskId'];
 
-        const modifiedBucket = appService.completeTask(bucketId, taskId, req.user);  
-
-        if(!req.user.isGuest) {    
-            await services.driveService.saveDataToDrive(appData, req.user);
-            await googleauth.saveHistoryDataToDrive()
-        }  
-        res.send(task);
+        const modifiedBucket = await appService.completeTask(bucketId, taskId, req.user);  
+        res.send(modifiedBucket);
     } catch (error) {
         console.log(error);
         if (error instanceof exceptions.InvalidIdException) {

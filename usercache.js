@@ -1,6 +1,5 @@
 const AppData = require('./appdata/appdata');
-const googleauth = require('./googleauth');
-const exceptions = require('./exceptions');
+const services = require('./services');
 
 class UserCache {
     constructor() {
@@ -27,7 +26,7 @@ class UserCache {
                 return this[id];
             } else {
                 console.log(`cannot find user ${user.id} in cache. start loading data`);
-                this.loadPromises[id] = googleauth.loadDataFromDrive(user);
+                this.loadPromises[id] = services.driveService.loadDataFromDrive(user);
                 this.loadPromises[id].then((data) => {
                     this[id] = new AppData(data);
                     console.log(`finish loading data for user ${id}`);

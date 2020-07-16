@@ -1,10 +1,10 @@
 const UserCache = require('./usercache').UserCache;
 const exceptions = require('./exceptions');
-const googleauth = require('./googleauth');
+const services = require('./services');
 
 let userCache;
 const user = {email:'test@test'};
-const loadDataFromDrive = jest.spyOn(googleauth, 'loadDataFromDrive').mockImplementation(() => Promise.resolve({}));
+services.driveService = {loadDataFromDrive: jest.fn().mockImplementation(() => Promise.resolve({}))}
 
 describe('getOrCreateUserData', () => {
     beforeEach(() => {
