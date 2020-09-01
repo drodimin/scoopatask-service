@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 const User = require('./models/user');
-let mongoose = require('mongoose');
-const AppData = require('./appdata');
+const AppData = require('./appdata/appdata');
 dotenv.config();
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.appdata','https://www.googleapis.com/auth/userinfo.email']
@@ -23,214 +22,20 @@ class GoogleAuth{
           });
           return client;
     }
-
-    createDriveClient(tokens) {
-        const client = this.createAuthClient(tokens);
-        return  google.drive({version: 'v3', auth: client});
-    }
     
     createUrl() {
-        //return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
+        //return this.createAuthClient().AuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
         return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
     }
 
-    async handleAccessCode(code, userCallBack) {
+    async signInUserWithAccessCode(code) {
         const client =  this.createAuthClient();
-        client.getToken(code, async function (err, tokens) {
-            if (err) {
-                console.log(err);
-            } else {
-                client.setCredentials(tokens); 
-                console.log("received tokens", tokens);
-                var oauth2 = google.oauth2({ version: 'v2', auth: client });
-                oauth2.userinfo.get(async function(err, res) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        userCallBack(await User.saveGoogleTokens(res.data.email, tokens));
-                    }
-                });
-            }
-        });
+        const tokens = await client.getToken(code);
+        client.setCredentials(tokens.tokens); 
+        const oauth2 = google.oauth2({ version: 'v2', auth: client });
+        const googleuser = await oauth2.userinfo.get();
+        return await User.saveGoogleTokens(googleuser.data.email, tokens.tokens);
     }
-
-    saveDataToDrive(data, user){
-        console.log("User:", user.email);
-        console.log("Saving data", data);
-        return new Promise((resolve, reject) => {
-            const drive = this.createDriveClient(user.google);
-            this.find(drive, DATA_FILE_NAME)
-                .then(files => {
-                    console.log("Files", files);
-                    if(files.length === 1) {
-                        this.update(drive, files[0].id, JSON.stringify(data))
-                            .then(file => { 
-                                console.log("Resolving saveDataToDrive 1");
-                                resolve(file)
-                            })
-                            .catch(err => { reject(err)});
-                    } else if(files.length === 0) {
-                        this.upload(JSON.stringify(data), drive)
-                            .then(file => { 
-                                console.log("Resolving saveDataToDrive 2");
-                                resolve(file)
-                            })
-                            .catch(err => { reject(err)});
-                    } else {
-                        reject("found multilple " + DATA_FILE_NAME);
-                    }
-                })
-        });
-    }
-
-    loadDataFromDrive(user){
-        console.log("Loading data for", user.email);
-        return new Promise((resolve, reject) => {
-            const drive = this.createDriveClient(user.google);
-            this.find(drive, DATA_FILE_NAME)
-                .then(files => {
-                    console.log("Files", files);
-                    if(files.length === 1) {
-                        return this.get(drive, files[0].id);
-                    } else if(files.length === 0) {
-                        return {};
-                    } else {
-                        throw "found multilple " + DATA_FILE_NAME;
-                    }
-                })
-                .then(data => { resolve(data)})
-                .catch(err => { reject(err)});
-        });
-    }
-
-    listFiles(user) {
-        console.log("Listing files for", user.email);
-        return new Promise((resolve, reject) => {
-            const drive = this.createDriveClient(user.google);
-            this.list(drive)
-                .then(files => { resolve(files)})
-                .catch(err => { reject(err)});
-        });
-    }
-
-    upload(data, drive)
-    {
-        return new Promise((resolve, reject) => {
-            console.log("Uploading", data);
-            var fileMetadata = {
-                'name': 'data.json',
-                'parents': ['appDataFolder']
-            };
-            var media = {
-                mimeType: 'application/json',
-                body: data
-            };
-            drive.files.create({
-                    resource: fileMetadata,
-                    media: media,
-                    fields: 'id'
-                }, function (err, file) {
-                    if (err) {
-                        console.log("Drive error", err);
-                        reject(err)
-                    } else {
-                        console.log("Uploaded:", file.data);
-                        resolve(file);
-                    }
-                });
-        });
-    }
-
-    list(drive){
-        console.log("Listing files");
-        return new Promise((resolve, reject) => {
-            drive.files.list({
-                spaces: 'appDataFolder',
-                fields: 'nextPageToken, files(id, name)',
-                pageSize: 100
-            }, function (err, res) {
-                if (err) {
-                    console.log("Drive error", err);
-                    reject(err)
-                } else {
-                    resolve(res.data.files);
-                }
-            });
-        });
-    }
-    
-    find(drive, filename){
-        console.log("Find file", filename);
-        return new Promise((resolve, reject) => {            
-            drive.files.list({
-                q: "name='" + filename + "'",
-                spaces: 'appDataFolder',
-                fields: 'nextPageToken, files(id, name)',
-            }, function (err, res) {
-                if (err) {
-                    console.log("Drive error", err);
-                    reject(err);
-                } else {
-                    console.log("Found");
-                    resolve(res.data.files);
-                }
-            });
-        });
-    }
-
-    get(drive, fileid){
-        console.log("Getting file", fileid);
-        return new Promise((resolve, reject) => {
-            drive.files.get({
-                fileId: fileid, alt: 'media'
-            }, 
-            function(err, res){
-                if (err) {
-                    console.log("Drive error", err);
-                    reject(err);
-                } else {
-                    resolve(new AppData(res.data));
-                }
-            });
-        });
-    }
-
-    update(drive, fileid, data){
-        console.log("Updating file", fileid);
-        return new Promise((resolve, reject) => {
-            drive.files.update({
-                fileId: fileid,
-                media: {
-                    mimeType: 'application/json',
-                    body: data
-                }},
-                function (err, file) {
-                    if (err) {
-                        console.log("Drive error", err);
-                        reject(err);
-                    } else {
-                        resolve(file);
-                    }
-                });     
-            }); 
-    }
-
-    delete(drive, fileid){
-        console.log("Deleting file", fileid);
-        return new Promise((resolve, reject) => {
-            drive.files.delete({
-                fileId: fileid},
-                function (err, file) {
-                    if (err) {
-                        console.log("Drive error", err);
-                        reject(err);
-                    } else {
-                        resolve(file);
-                    }
-                }); 
-        });     
-    }
-    
 }
 
 module.exports = new GoogleAuth();
