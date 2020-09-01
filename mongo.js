@@ -3,7 +3,7 @@ const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
 const dotenv = require('dotenv');
 dotenv.config();
-const DATABASE_NAME = process.env.DATABASE_NAME;
+const db_name = process.env.DB_NAME;
 const db_user= process.env.DB_USER;
 const db_password = process.env.DB_PASSWORD;
 const db_server = process.env.DB_SERVER;
@@ -23,7 +23,7 @@ class Database {
                 this.client = MongoClient.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true  })
                 .then((res) => {
                     this.isConnected = true;
-                    this.db = res.db(DATABASE_NAME);;
+                    this.db = res.db(db_name);;
                     console.log("Connection successful");
                     resolve(this.db);
                 })

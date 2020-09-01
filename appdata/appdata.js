@@ -6,7 +6,7 @@ const utils = require('../utils');
 module.exports = class AppData {
   constructor(obj) {
       this._buckets = [];
-      if(obj) {
+      if(obj && obj._buckets) {
         obj._buckets.forEach(bucket => {
           const newBucket = new Bucket(bucket);
           this._buckets.push(newBucket);

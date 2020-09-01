@@ -31,13 +31,12 @@ router.get('/googlecode', async (req, res) => {
             usercache.getOrCreateUserData(user);
             res.send({ emai:user.email, token:token})
         }
-            else
-            {
-                res.status(400).send() 
-            }
-        });
+        else
+        {
+            res.status(400).send() 
+        }
     }catch(e){
         console.log(e);
-        res.status(400).send(e)
+        res.status(500).send(e)
     }
 })

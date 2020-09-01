@@ -31,10 +31,10 @@ class GoogleAuth{
     async signInUserWithAccessCode(code) {
         const client =  this.createAuthClient();
         const tokens = await client.getToken(code);
-        client.setCredentials(tokens); 
+        client.setCredentials(tokens.tokens); 
         const oauth2 = google.oauth2({ version: 'v2', auth: client });
         const googleuser = await oauth2.userinfo.get();
-        return await User.saveGoogleTokens(res.data.email, tokens);
+        return await User.saveGoogleTokens(googleuser.data.email, tokens.tokens);
     }
 }
 
