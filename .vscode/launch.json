@@ -21,7 +21,7 @@
                 "--inspect-brk",
                 "${workspaceRoot}/node_modules/jest/bin/jest.js",
                 "--runInBand",
-                "driveservice"
+                "appdata.test.js"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",

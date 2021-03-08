@@ -11,8 +11,6 @@ const completeTaskMock = jest.fn(taskId => {return {_id:taskId1};});
 
 function getAppData() {
   const bucket = new Bucket({_id: bucketId1,_tasks:[{_id:taskId1}]});
-  bucket.updateTask = updateTaskMock;
-  bucket.completeTask = completeTaskMock;
   return new AppData({_buckets: [bucket]}); 
 }
 
@@ -22,8 +20,12 @@ describe('updateTask', () => {
   });
 
   it('updateTask calls updateTask method of Bucket', () => {
+    //arrange
+    const appData = getAppData();
+    appData._buckets[0].updateTask = updateTaskMock;
+
     //act
-    const updatedBucket = getAppData().updateTask(bucketId1, taskId1, {});
+    appData.updateTask(bucketId1, taskId1, {});
 
     expect(updateTaskMock).toHaveBeenCalledWith(taskId1, {});
     expect(updateTaskMock).toHaveBeenCalledTimes(1);
@@ -36,18 +38,26 @@ describe('completeTask', () => {
   });
 
   it('completeTask calls completeTask on Bucket', () => {
-    getAppData().completeTask(bucketId1, taskId1);
+    //arrange
+    const appData = getAppData();
+    appData._buckets[0].completeTask = completeTaskMock;
 
+    //act
+    appData.completeTask(bucketId1, taskId1);
+
+    //assert
     expect( completeTaskMock).toHaveBeenCalledWith(taskId1);
     expect( completeTaskMock).toHaveBeenCalledTimes(1);
   });
 
-  if('returns a copy of bucket containing completed task') {
+  if('returns an object containing completed(a bucket copy with completed task) and the modified bucket') {
     const result = getAppData().completeTask(bucketId1, taskId1);
-    console.log(result);
-    expect(result._id).toEqual(bucketId1);
-    expect(result._tasks).toHaveLength(1);
-    expect(result._tasks[0]._id).toEqual(taskId1);
-    expect(result._tasks[0].completedDate).toBeInstanceOf(Date);
+    expect(result.historyBucket._id).toEqual(bucketId1);
+    expect(result.historyBucket._tasks).toHaveLength(1);
+    expect(result.historyBucket._tasks[0]._id).toEqual(taskId1);
+    expect(result.historyBucket._tasks[0].completedDate).toBeInstanceOf(Date);
+
+    expect(result.modifiedBucket._id).toEqual(bucketId1);
+    expect(result.modifiedBucket._tasks).toHaveLength(0);
   }
 });

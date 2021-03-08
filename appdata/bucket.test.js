@@ -13,7 +13,7 @@ function getBucket(){
 describe('deleteTask', () => {
     it('throws exception when task not found', () => {
       const bucket1 =  getBucket();
-      expect(() => bucket1.completeTask('someid')).toThrow(exceptions.InvalidIdExceptions);
+      expect(() => bucket1.deleteTask('someid')).toThrow(exceptions.InvalidIdExceptions);
     });
 
     it('deletes task given id', () => {      

@@ -1,5 +1,5 @@
 const appService = require('./appservice');
-const userCache = require('../usercache');
+const userCache = require('../usercache').cacheInstance;
 const AppData = require('./appdata');
 const HistoryData = require('./historydata');
 const Bucket = require('./bucket');
@@ -9,18 +9,19 @@ describe('completeTask', () => {
     const taskId = 't';
     const bucketId = 'b';
     const bucket = new Bucket({_id: bucketId,_tasks:[{_id:taskId}]});
+    const modifiedBucket = new Bucket({_id: bucketId,_tasks:[]});
 
     const user = {email:'abc'};
     const appData = new AppData();
     const historyData = new HistoryData();
 
-    const mockDriveService = { saveDataToDrive: jest.fn(), saveHistoryDataToDrive: jest.fn()}
+    const mockDriveService = { saveDataToDrive: jest.fn(), saveHistoryToDrive: jest.fn()}
     services.driveService = mockDriveService;
     
     beforeEach(()=>{
-        userCache.getOrCreateUserData = jest.fn(()=>appData);
-        userCache.getOrCreateUserHistoryData = jest.fn(()=>historyData);
-        appData.completeTask = jest.fn(()=>bucket);
+        userCache.getOrCreateUserData = jest.fn(()=>Promise.resolve(appData));
+        userCache.getOrCreateUserHistory = jest.fn(()=>historyData);
+        appData.completeTask = jest.fn(()=>{ return { historyBucket: bucket, modifiedBucket: modifiedBucket };});
         historyData.addBucket = jest.fn(()=>bucket);
     })
 
@@ -36,8 +37,8 @@ describe('completeTask', () => {
         //act
         await appService.completeTask('a', 'b', user);
         //assert
-        expect(userCache.getOrCreateUserHistoryData).toHaveBeenCalledWith(user);
-        expect(userCache.getOrCreateUserHistoryData).toHaveBeenCalledTimes(1);
+        expect(userCache.getOrCreateUserHistory).toHaveBeenCalledWith(user);
+        expect(userCache.getOrCreateUserHistory).toHaveBeenCalledTimes(1);
     })
 
     it('calls completeTask on user data passing bucketId and taskId and passes result to history data addBucket', async()=>{
@@ -51,19 +52,19 @@ describe('completeTask', () => {
         expect(historyData.addBucket).toHaveBeenCalledTimes(1);
     })
 
-    it('returns the result of historyData.addBucket', async()=>{
+    it('returns modified bucket', async()=>{
         //act
         let result = await appService.completeTask(bucketId, taskId, user);
         //assert
-        expect(result).toEqual(bucket);
+        expect(result).toEqual(modifiedBucket);
     })
 
     it('saves user data and history data if user is not Guest', async()=>{
         //act
-        let result = await appService.completeTask(bucketId, taskId, user);
+        await appService.completeTask(bucketId, taskId, user);
         //assert
         expect(mockDriveService.saveDataToDrive).toHaveBeenCalledWith(appData, user);
-        expect(mockDriveService.saveHistoryDataToDrive).toHaveBeenCalledWith(historyData, user);
+        expect(mockDriveService.saveHistoryToDrive).toHaveBeenCalledWith(historyData, user);
     })
 
     it('does not save user data and history data if user is Guest', async()=>{
@@ -71,10 +72,10 @@ describe('completeTask', () => {
         user.isGuest = true;
 
         //act
-        let result = await appService.completeTask(bucketId, taskId, user);
+        await appService.completeTask(bucketId, taskId, user);
 
         //assert
         expect(mockDriveService.saveDataToDrive).not.toHaveBeenCalled();
-        expect(mockDriveService.saveHistoryDataToDrive).not.toHaveBeenCalled();
+        expect(mockDriveService.saveHistoryToDrive).not.toHaveBeenCalled();
     })
 })

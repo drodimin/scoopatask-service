@@ -68,8 +68,8 @@ module.exports = class AppData {
     console.log('completing task in bucket', bucket._id);
     const completedTask = bucket.completeTask(taskId);
     completedTask.completedDate = new Date();
-    const completedBucket = utils.pick(bucket, ['_id','name']);
-    completedBucket._tasks = [completedTask];
-    return completedBucket;
+    const historyBucket = utils.pick(bucket, ['_id','name']);
+    historyBucket._tasks = [completedTask];
+    return { historyBucket: historyBucket, modifiedBucket: bucket };
   }
 }

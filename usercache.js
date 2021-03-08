@@ -1,10 +1,9 @@
 const AppData = require('./appdata/appdata');
+const HistoryData = require('./appdata/historydata')
 const services = require('./services');
 
 class UserCache {
     constructor() {
-        this.loadPromises = {};
-        this.historyLoadPromises = {};
         this.history = {};
     }
 
@@ -13,42 +12,46 @@ class UserCache {
             throw new Error('User email is missing');
         }
         const id = user.email;
+
         if(this[id]) {
-            console.log(`data for user ${id} is already loaded`);
+            console.log(`data for user ${id} is already loaded or loading`);
             return this[id];
-        } else if(this.loadPromises[id]) {
-            console.log(`data for user ${id} is still loading`);
-            return this.loadPromises[id];
         } else {
             if(user.isGuest) {
                 console.log(`creating new data for guest user ${id}`);
-                this[id] = new AppData();
+                this[id] = Promise.resolve(new AppData());
                 return this[id];
             } else {
-                console.log(`cannot find user ${user.id} in cache. start loading data`);
-                this.loadPromises[id] = services.driveService.loadDataFromDrive(user);
-                this.loadPromises[id].then((data) => {
-                    this[id] = new AppData(data);
-                    console.log(`finish loading data for user ${id}`);
-                });
-                return this.loadPromises[id];
+                console.log(`cannot find user ${id} in cache. start loading data`);
+                this[id] = new Promise((resolve, reject) => {
+                    services.driveService.loadDataFromDrive(user).then(data => {
+                        console.log(`finish loading data for user ${id}`);
+                        resolve(new AppData(data));
+                    }).catch(error => reject(error));
+                })
+                return this[id];
             }
         }            
     }
 
-    getOrCreateUserHistoryData(user) {
+    getOrCreateUserHistory(user) {
         if(!user.email) {
             throw new Error('User email is missing');
         }
         const id = user.email;
         if(this.history[id]) {
-            console.log(`history data for user ${id} is already loaded`);
+            console.log(`history data for user ${id} is already loaded or loading`);
             return this.history[id];
-        } else if(this.historyLoadPromises[id]) {
-            console.log(`history data for user ${id} is still loading`);
-            return this.historyLoadPromises[id];
+        } else {
+            console.log(`cannot find user ${id} history data in cache. start loading data`);
+            this.history[id] = new Promise((resolve, reject) => {
+                services.driveService.loadHistoryFromDrive(user).then(data => {
+                    console.log(`finish loading history data for user ${id}`);
+                    resolve(new HistoryData(data));
+                }).catch(error => reject(error));
+            })
+            return this.history[id];
         } 
-        return undefined;
     }
 }
 

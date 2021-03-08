@@ -14,3 +14,13 @@ router.get('/appdata', authenticate, async (req, res) => {
         res.status(400).send()        
     }
 })
+
+router.get('/history', authenticate, async (req, res) => {
+    try {
+        console.log("Get History");
+        const data = await usercache.getOrCreateUserHistory(req.user);
+        res.send(data);
+    } catch (error) {
+        res.status(400).send()        
+    }
+})
