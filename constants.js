@@ -1,1 +1,1 @@
-module.exports = {DATA_FILE_NAME:'data.json'}
+module.exports = {DATA_FILE_NAME:'data.json',HISTORY_FILE_NAME:'history.json'}

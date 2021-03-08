@@ -4,7 +4,15 @@ const services = require('./services');
 
 let userCache;
 const user = {email:'test@test'};
-services.driveService = {loadDataFromDrive: jest.fn().mockImplementation(() => Promise.resolve({}))}
+let mockLoadDataFromDrive = jest.fn();
+let mockLoadHistoryFromDrive = jest.fn();
+services.driveService = {loadDataFromDrive: mockLoadDataFromDrive, loadHistoryFromDrive: mockLoadHistoryFromDrive};
+
+const taskId1 = 'azn4';
+const bucketId1 = 'anb9';
+const bucket = {_id: bucketId1,_tasks:[{_id:taskId1}]};
+const appData = {_buckets: [bucket]}; 
+const history = {_buckets: [bucket]}; 
 
 describe('getOrCreateUserData', () => {
     beforeEach(() => {
@@ -15,39 +23,42 @@ describe('getOrCreateUserData', () => {
         expect(() => userCache.getOrCreateUserData({})).toThrow('User email is missing');
     });
 
-    it('return history object if it has been loaded for given user', ()=>{
-        userCache.history[user.email] = {};
-        const history = userCache.getOrCreateUserData(user);
-        expect(history).toBeDefined();
+    it('returns appdata resolved promise if it exists for given user', async()=>{
+        userCache[user.email] = Promise.resolve(appData);
+        const result = await userCache.getOrCreateUserData(user);
+        expect(result._buckets[0]._id).toEqual(bucketId1);
     });
 
-    it('returns load promise if it exists for given user', ()=>{
-        const checkValue = 'isPromise';
-        userCache.loadPromises[user.email] = {check:checkValue};
-        const loadPromise = userCache.getOrCreateUserData(user);
-        expect(loadPromise.check).toEqual(checkValue);
+    it('starts loading appdata for given user if it does not exist in cache', async()=>{
+        mockLoadDataFromDrive.mockImplementation(() => Promise.resolve(appData));
+        
+        const result = await userCache.getOrCreateUserData(user);
+        expect(result._buckets[0]._id).toEqual(bucketId1);
+        expect(mockLoadDataFromDrive).toHaveBeenCalledTimes(1);
     });
 });
 
-describe('getOrCreateUserHistoryData', () => {
+describe('getOrCreateUserHistory', () => {
     beforeEach(() => {
         userCache = new UserCache();
     });
 
     it('throws exception when user.email is not defined', ()=>{
-        expect(() => userCache.getOrCreateUserHistoryData({})).toThrow('User email is missing');
+        expect(() => userCache.getOrCreateUserHistory({})).toThrow('User email is missing');
     });
 
-    it('return history object if it has been loaded for given user', ()=>{
-        userCache.history[user.email] = {};
-        const history = userCache.getOrCreateUserHistoryData(user);
-        expect(history).toBeDefined();
+    it('return history resolved if it has been loaded for given user', async()=>{
+        userCache.history[user.email] = Promise.resolve(history);
+        const result = await userCache.getOrCreateUserHistory(user);
+        expect(result._buckets[0]._id).toEqual(bucketId1);
     });
 
-    it('returns load promise if it exists for given user', ()=>{
-        const checkValue = 'isPromise';
-        userCache.historyLoadPromises[user.email] = {check:checkValue};
-        const historyPromise = userCache.getOrCreateUserHistoryData(user);
-        expect(historyPromise.check).toEqual(checkValue);
+    it('starts loading history data for given user if it does not exist in cache', async()=>{
+        mockLoadHistoryFromDrive.mockImplementation(() => Promise.resolve(history));
+        
+        const result = await userCache.getOrCreateUserHistory(user);
+
+        expect(result._buckets[0]._id).toEqual(bucketId1);
+        expect(mockLoadHistoryFromDrive).toHaveBeenCalledTimes(1);
     });
 });
