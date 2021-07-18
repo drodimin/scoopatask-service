@@ -3,3 +3,23 @@ const jwt = require('jsonwebtoken');
 module.exports.createJWT = function (id, isGuest = false) {
     return jwt.sign({ _id: id.toString(), isGuest: isGuest }, process.env.JWT_SECRET);
 }
+
+module.exports.pick = function (obj, props) {
+
+	'use strict';
+
+	// Make sure object and properties are provided
+	if (!obj || !props) return;
+
+	// Create new object
+	var picked = {};
+
+	// Loop through props and push to new object
+	props.forEach(function(prop) {
+		picked[prop] = obj[prop];
+	});
+
+	// Return new object
+	return picked;
+
+};
