@@ -129,3 +129,14 @@ router.get('/bucket/:bucketId/task/:taskId/complete', authenticate, async (req, 
         }
     }
 })
+
+router.get('/bucket/:targetBucketId/moveBefore/:destBucketId', authenticate, async (req, res) => {
+    try {
+        const targetBucketId = req.params['targetBucketId'];
+        const destBucketId = req.params['destBucketId'];
+        await appService.moveBucketBefore(targetBucketId, destBucketId, req.user);
+        res.status(200).send();
+    } catch (error) {
+
+    }
+})

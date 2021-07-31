@@ -1,5 +1,6 @@
 const usercache = require('../usercache').cacheInstance;
 const services = require('../services');
+const exceptions = require('../exceptions');
 
 async function completeTask(bucketId, taskId, user) {
     const appData = await usercache.getOrCreateUserData(user);
@@ -13,4 +14,12 @@ async function completeTask(bucketId, taskId, user) {
     return result.modifiedBucket 
 }
 
-module.exports = { completeTask: completeTask }
+async function moveBucketBefore(targetBucketId, destBucketId, user) {
+    if(!user) {
+        throw new exceptions.ArgumentNullException('user')
+    }
+    const appData = await usercache.getOrCreateUserData(user);
+    appData.moveBucketBefore(targetBucketId, destBucketId);
+}
+
+module.exports = { completeTask, moveBucketBefore }

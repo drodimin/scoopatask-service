@@ -4,6 +4,10 @@ const AppData = require('./appdata');
 const HistoryData = require('./historydata');
 const Bucket = require('./bucket');
 const services = require('../services');
+const exceptions = require('../exceptions');
+
+const user = {email:'abc'};
+const appData = new AppData();
 
 describe('completeTask', () => {
     const taskId = 't';
@@ -11,8 +15,6 @@ describe('completeTask', () => {
     const bucket = new Bucket({_id: bucketId,_tasks:[{_id:taskId}]});
     const modifiedBucket = new Bucket({_id: bucketId,_tasks:[]});
 
-    const user = {email:'abc'};
-    const appData = new AppData();
     const historyData = new HistoryData();
 
     const mockDriveService = { saveDataToDrive: jest.fn(), saveHistoryToDrive: jest.fn()}
@@ -77,5 +79,27 @@ describe('completeTask', () => {
         //assert
         expect(mockDriveService.saveDataToDrive).not.toHaveBeenCalled();
         expect(mockDriveService.saveHistoryToDrive).not.toHaveBeenCalled();
+    })
+});
+
+describe('moveBucketBefore', () => {
+    const targetBucketId = 'a';
+    const destBucketId = 'b'
+
+    beforeEach(()=>{
+        appData.moveBucketBefore = jest.fn();
+    })
+
+    it('throws exception if user object is not passed', () => {
+        expect(() => appService.moveBucketBefore('a', 'b')).rejects.toThrowError('user');
+    });
+
+    it('calls moveBucketBefore on user data passing target and destination bucket Ids', async()=>{
+        //act
+        await appService.moveBucketBefore(targetBucketId, destBucketId, user);
+
+        //assert
+        expect(appData.moveBucketBefore).toHaveBeenCalledWith(targetBucketId, destBucketId);
+        expect(appData.moveBucketBefore).toHaveBeenCalledTimes(1);
     })
 })
