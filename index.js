@@ -1,5 +1,7 @@
-var express = require('express');
-var cors = require('cors');
+const express = require('express');
+const cors = require('cors');
+const shortid = require('shortid');
+const dotenv = require('dotenv');
 
 const userRoutes = require('./router/user');
 const googleRoutes = require('./router/google');
@@ -8,9 +10,8 @@ const utilRoutes = require('./router/utils');
 const appDataRoutes = require('./router/appdata');
 const guestRoutes = require('./router/guest');
 
-
-const dotenv = require('dotenv');
 dotenv.config();
+shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$@');
 
 var app = express();
 app.use(express.json());
