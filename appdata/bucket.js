@@ -1,10 +1,10 @@
 
-const shortid = require('shortid');
 const exceptions = require('../exceptions');
+const utils = require('../utils');
 
 module.exports = class Bucket {
     constructor(obj) {
-      this._id = shortid.generate();
+      this._id = utils.generateId();
       this.created = Date.now;
       this.updated = Date.now;
       this._tasks = [];
@@ -12,7 +12,7 @@ module.exports = class Bucket {
     }
   
     add(task) {
-      task._id = shortid.generate();
+      task._id = utils.generateId();
       task.created = Date.now;
       task.updated = Date.now;
       this._tasks.push(task);

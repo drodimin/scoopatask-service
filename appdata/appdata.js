@@ -1,4 +1,3 @@
-const shortid = require('shortid');
 const exceptions = require('../exceptions');
 const Bucket = require('./bucket');
 const utils = require('../utils');
