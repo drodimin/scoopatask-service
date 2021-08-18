@@ -1,7 +1,14 @@
 const jwt = require('jsonwebtoken');
+const { customAlphabet } = require('nanoid');
+
+const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 12);
 
 module.exports.createJWT = function (id, isGuest = false) {
     return jwt.sign({ _id: id.toString(), isGuest: isGuest }, process.env.JWT_SECRET);
+}
+
+module.exports.generateId = function () {
+	return nanoid();
 }
 
 module.exports.pick = function (obj, props) {
