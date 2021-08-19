@@ -61,3 +61,34 @@ describe('completeTask', () => {
     expect(result.modifiedBucket._tasks).toHaveLength(0);
   }
 });
+
+describe('moveBucketBefore', () => {
+  it('throws exception when target bucket is not found', () => {
+    const appData = getAppData();
+    expect(() => appData.moveBucketBefore('someid1', appData._buckets[0]._id)).toThrow(exceptions.InvalidIdException);
+  })
+
+  it('throws exception when destination bucket is not found', () => {
+    const appData = getAppData();
+    expect(() => appData.moveBucketBefore(appData._buckets[0]._id, 'someid2')).toThrow(exceptions.InvalidIdException);
+  })
+
+  it('target bucket gets moved before destination bucket', () => {
+    // Arrange
+    const appData = new AppData();
+    for(let i=0; i<10; i++) {
+      appData.addBucket(new Bucket({_id:i.toString()}));
+    }
+    
+    // Act, Assert
+    appData.moveBucketBefore('9', '4');
+    expect(appData._buckets[4]._id).toEqual('9');
+    expect(appData._buckets[5]._id).toEqual('4');
+    expect(appData._buckets[9]._id).toEqual('8');
+
+    appData.moveBucketBefore('0', '7');
+    expect(appData._buckets[0]._id).toEqual('1');
+    expect(appData._buckets[7]._id).toEqual('0');
+    expect(appData._buckets[8]._id).toEqual('7');
+  })
+})

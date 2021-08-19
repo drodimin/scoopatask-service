@@ -1,4 +1,3 @@
-const shortid = require('shortid');
 const exceptions = require('../exceptions');
 const Bucket = require('./bucket');
 const utils = require('../utils');
@@ -71,5 +70,23 @@ module.exports = class AppData {
     const historyBucket = utils.pick(bucket, ['_id','name']);
     historyBucket._tasks = [completedTask];
     return { historyBucket: historyBucket, modifiedBucket: bucket };
+  }
+
+  moveBucketBefore(targetBucketId, destBucketId){
+    const targetBucket = this._buckets.find(bucket => bucket._id === targetBucketId);
+    if(!targetBucket) {
+      throw new exceptions.InvalidIdException(`Bucket with id ${targetBucketId} doesn't exist`);
+    }
+
+    const destBucket = this._buckets.find(bucket => bucket._id === destBucketId);
+    if(!destBucket) {
+      throw new exceptions.InvalidIdException(`Bucket with id ${destBucketId} doesn't exist`);
+    }
+
+    // remove targetBucket from old position
+    const tempBuckets = this._buckets.filter(bucket => bucket._id !== targetBucketId); 
+    const destBucketIndex = tempBuckets.findIndex(bucket => bucket._id === destBucketId);
+    
+    this._buckets = [...tempBuckets.slice(0, destBucketIndex), targetBucket, ...tempBuckets.slice(destBucketIndex)];
   }
 }
