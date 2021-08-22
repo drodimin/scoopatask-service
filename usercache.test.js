@@ -62,3 +62,29 @@ describe('getOrCreateUserHistory', () => {
         expect(mockLoadHistoryFromDrive).toHaveBeenCalledTimes(1);
     });
 });
+
+describe('updateUserData', () => {
+    beforeEach(() => {
+        userCache = new UserCache();
+    });
+
+    it('throws exception when user.email is not defined', ()=>{
+        expect(() => userCache.updateUserData({}, {})).toThrow('User email is missing');
+    });
+
+    it('throws exception when data is not defined', ()=>{
+        expect(() => userCache.updateUserData({email:'test'}, undefined)).toThrow('User data is not defined');
+    });
+
+    it('assigns data to given user', ()=>{
+        // Arrange
+        const user = {email: 'test'};
+        const data = {x: 1};
+
+        // Act
+        userCache.updateUserData(user, data);
+
+        // Assert
+        expect(userCache[user.email]).toEqual(data);
+    })
+});
