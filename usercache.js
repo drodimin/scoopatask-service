@@ -53,6 +53,17 @@ class UserCache {
             return this.history[id];
         } 
     }
+
+    updateUserData(user, data) {
+        if(!user.email) {
+            throw new Error('User email is missing');
+        }
+        if(!data) {
+            throw new Error('User data is not defined');
+        }
+        const id = user.email;
+        this[id] = data;
+    }
 }
 
  module.exports = {cacheInstance:new UserCache(), UserCache: UserCache }
