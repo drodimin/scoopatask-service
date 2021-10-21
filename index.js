@@ -11,11 +11,11 @@ const guestRoutes = require('./router/guest');
 
 dotenv.config();
 
-var app = express();
+const app = express();
 app.use(express.json());
 
-var corsOptions = {
-  origin: [process.env.CORS_ORIGIN],
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN.split(','),
   optionsSuccessStatus: 200
 }
 
