@@ -19,7 +19,7 @@ module.exports.pick = function (obj, props) {
 	if (!obj || !props) return;
 
 	// Create new object
-	var picked = {};
+	const picked = {};
 
 	// Loop through props and push to new object
 	props.forEach(function(prop) {
