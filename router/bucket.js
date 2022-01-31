@@ -134,9 +134,9 @@ router.get('/bucket/:targetBucketId/moveBefore/:destBucketId', authenticate, asy
     try {
         const targetBucketId = req.params['targetBucketId'];
         const destBucketId = req.params['destBucketId'];
-        await appService.moveBucketBefore(targetBucketId, destBucketId, req.user);
-        res.status(200).send();
+        const updatedBuckets = await appService.moveBucketBefore(targetBucketId, destBucketId, req.user);
+        res.status(200).send(updatedBuckets);
     } catch (error) {
-
+        res.status(500).send();
     }
 })

@@ -32,7 +32,7 @@ class User {
         } else {
             user = users[0];
             const res = await collection.updateOne({ _id: user._id }, {$set: {google: tokens}});
-            console.log("updated", res.result.n, res.result.nModified); 
+            console.log(`updated user record: ${email} updated count: ${res.result.n}, modified count: ${res.result.nModified}`); 
         }
         return user;
     }
@@ -59,9 +59,8 @@ class User {
         const db = await mongo.database.connect();
         const collection = db.collection('users');
         const query = { _id: id};
-        console.log("updating tokens", query, tokens);
         const res = await collection.updateOne(query, {$set: {tokens: tokens}});
-        console.log("updated", res.matchedCount, res.modifiedCount); 
+        console.log(`updated tokens in database for user ${id}, matchedCount: ${res.matchedCount}, modifiedCount: ${res.modifiedCount}`); 
     }
 }
 

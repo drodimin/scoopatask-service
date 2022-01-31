@@ -19,7 +19,7 @@ async function moveBucketBefore(targetBucketId, destBucketId, user) {
         throw new exceptions.ArgumentNullException('user')
     }
     const appData = await usercache.getOrCreateUserData(user);
-    appData.moveBucketBefore(targetBucketId, destBucketId);
+    return appData.moveBucketBefore(targetBucketId, destBucketId);
 }
 
 module.exports = { completeTask, moveBucketBefore }
