@@ -88,5 +88,6 @@ module.exports = class AppData {
     const destBucketIndex = tempBuckets.findIndex(bucket => bucket._id === destBucketId);
     
     this._buckets = [...tempBuckets.slice(0, destBucketIndex), targetBucket, ...tempBuckets.slice(destBucketIndex)];
+    return this._buckets;
   }
 }

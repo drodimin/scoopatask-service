@@ -23,7 +23,7 @@ router.get('/googlecode', async (req, res) => {
         const user = await googleauth.signInUserWithAccessCode(code);
         if(user)
         {
-            console.log("User signed in", user);
+            console.log(`User ${user.email} signed in`);
             const token = await User.createToken(user);
             console.log("New application token:" + token);
 

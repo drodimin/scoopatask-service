@@ -14,7 +14,7 @@ class UserCache {
         const id = user.email;
 
         if(this[id]) {
-            console.log(`data for user ${id} is already loaded or loading`);
+            console.log(`data for user ${id} is already loaded or loading, ${this[id]}`);
             return this[id];
         } else {
             if(user.isGuest) {
@@ -24,7 +24,7 @@ class UserCache {
             } else {
                 console.log(`cannot find user ${id} in cache. start loading data`);
                 this[id] = new Promise((resolve, reject) => {
-                    services.driveService.loadDataFromDrive(user).then(data => {
+                     services.driveService.loadDataFromDrive(user).then(data => {
                         console.log(`finish loading data for user ${id}`);
                         resolve(new AppData(data));
                     }).catch(error => reject(error));

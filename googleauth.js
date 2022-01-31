@@ -14,6 +14,7 @@ class GoogleAuth{
     createAuthClient(tokens) {
         const client = new google.auth.OAuth2(credentials.client_id, credentials.client_secret, credentials.redirect_uris);
         if(tokens) {
+            console.log("Using existing tokens", tokens);
             client.setCredentials(tokens); 
         }
 
