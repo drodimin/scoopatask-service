@@ -26,7 +26,7 @@ class GoogleAuth{
     
     createUrl() {
         //return this.createAuthClient().AuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
-        return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
+        return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'select_account'});
     }
 
     async signInUserWithAccessCode(code) {
