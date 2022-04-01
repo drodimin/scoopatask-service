@@ -7,30 +7,46 @@ const SCOPES = ['https://www.googleapis.com/auth/drive.appdata','https://www.goo
 const credentials = { client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET, redirect_uris: process.env.REDIRECT_URIS }
 
 const {google} = require('googleapis');
+const { error } = require('winston');
 
 const DATA_FILE_NAME = "data.json";
 
 class GoogleAuth{     
-    createAuthClient(tokens) {
+    async createAuthClient(tokens) {
         const client = new google.auth.OAuth2(credentials.client_id, credentials.client_secret, credentials.redirect_uris);
-        if(tokens) {
-            console.log("Using existing tokens", tokens);
-            client.setCredentials(tokens); 
+        if(tokens) {   
+                  
+            try{
+                // verify token
+                await client.getTokenInfo(tokens.access_token);
+                console.log("Using existing tokens");
+                client.setCredentials(tokens); 
+            }catch(error){
+                console.log('Existing tokens not valid', error);
+                client.setCredentials({
+                    refresh_token: tokens.refreshToken
+                  });
+                  
+                const accessTokenResult = await client.getAccessToken();
+                console.log(accessTokenResult);
+            }
+            
         }
 
         client.on('tokens', (tokens) => {
             console.log("Token refreshed", tokens);
           });
-          return client;
+        return client;
     }
     
-    createUrl() {
+    async createUrl() {
         //return this.createAuthClient().AuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'consent'});
-        return this.createAuthClient().generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'select_account'});
+        const client = await this.createAuthClient();
+        return client.generateAuthUrl({access_type: 'offline', scope: SCOPES, prompt: 'select_account'});
     }
 
     async signInUserWithAccessCode(code) {
-        const client =  this.createAuthClient();
+        const client =  await this.createAuthClient();
         const tokens = await client.getToken(code);
         client.setCredentials(tokens.tokens); 
         const oauth2 = google.oauth2({ version: 'v2', auth: client });

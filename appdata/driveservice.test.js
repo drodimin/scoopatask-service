@@ -5,7 +5,7 @@ const DriveClient = require('drive-appdata-client');
 const googleauth = require('../googleauth');
 
 const mockAuthClient = { test: 1};
-googleauth.createAuthClient = jest.fn().mockImplementation(() => mockAuthClient);
+googleauth.createAuthClient = jest.fn().mockImplementation(() => Promise.resolve(mockAuthClient));
 
 const mockFind = jest.fn();
 const mockCreate = jest.fn();

@@ -7,7 +7,7 @@ module.exports = class DriveService {
     constructor() {
     }
     
-    saveDataToDrive(data, user){
+    async saveDataToDrive(data, user){
         if(!data) {
             throw new exceptions.ArgumentNullException(`data`);
         }
@@ -21,7 +21,8 @@ module.exports = class DriveService {
             throw new exceptions.ArgumentException(`user.google`);
         }
 
-        const driveClient = new DriveClient(googleauth.createAuthClient(user.google));
+        const authClient = await googleauth.createAuthClient(user.google);
+        const driveClient = new DriveClient(authClient);
 
         console.log('Saving data', data, user.email);
         return new Promise((resolve, reject) => {
@@ -46,7 +47,7 @@ module.exports = class DriveService {
         });
     }
 
-    loadDataFromDrive(user){
+    async loadDataFromDrive(user){
         if(!user) {
             throw new exceptions.ArgumentNullException(`user`);
         }
@@ -57,13 +58,13 @@ module.exports = class DriveService {
             throw new exceptions.ArgumentException(`user.google`);
         }
 
-        const driveClient = new DriveClient(googleauth.createAuthClient(user.google));
+        const authClient = await googleauth.createAuthClient(user.google);
+        const driveClient = new DriveClient(authClient);
 
         console.log("Loading data for", user.email);
         return new Promise((resolve, reject) => {
             driveClient.find(constants.DATA_FILE_NAME)
                 .then(files => {
-                    console.log("Files", files);
                     if(files.length === 1) {
                         return driveClient.get(files[0].id);
                     } else if(files.length === 0) {
@@ -73,11 +74,14 @@ module.exports = class DriveService {
                     }
                 })
                 .then(data => { resolve(data)})
-                .catch(err => { reject(err)});
+                .catch(err => { 
+                    console.log(`Fail to load ${constants.DATA_FILE_NAME}`, err);
+                    reject(err)
+                });
         });
     }
 
-    saveHistoryToDrive(history, user){
+    async saveHistoryToDrive(history, user){
         if(!history) {
             throw new exceptions.ArgumentNullException(`history`);
         }
@@ -91,7 +95,8 @@ module.exports = class DriveService {
             throw new exceptions.ArgumentException(`user.google`);
         }
 
-        const driveClient = new DriveClient(googleauth.createAuthClient(user.google));
+        const authClient = await googleauth.createAuthClient(user.google);
+        const driveClient = new DriveClient(authClient);
 
         console.log('Saving history', history, user.email);
         return new Promise((resolve, reject) => {
@@ -116,7 +121,7 @@ module.exports = class DriveService {
         });
     }
 
-    loadHistoryFromDrive(user){
+    async loadHistoryFromDrive(user){
         if(!user) {
             throw new exceptions.ArgumentNullException(`user`);
         }
@@ -127,7 +132,8 @@ module.exports = class DriveService {
             throw new exceptions.ArgumentException(`user.google`);
         }
 
-        const driveClient = new DriveClient(googleauth.createAuthClient(user.google));
+        const authClient = await googleauth.createAuthClient(user.google);
+        const driveClient = new DriveClient(authClient);
 
         console.log("Loading history for", user.email);
         return new Promise((resolve, reject) => {

@@ -9,6 +9,8 @@ const utilRoutes = require('./router/utils');
 const appDataRoutes = require('./router/appdata');
 const guestRoutes = require('./router/guest');
 
+const logger = require('./logger');
+
 dotenv.config();
 
 const app = express();
@@ -33,4 +35,5 @@ app.use(appDataRoutes);
 app.use(guestRoutes);
 
 const port = process.env.PORT || 3005;
-app.listen(port, () => console.log('server started on port', port));
+app.listen(port, () => logger.info(`server started on port ${port}`));
+
