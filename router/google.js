@@ -9,7 +9,7 @@ module.exports = router
 
 router.get('/googleurl', async (req, res) => {
     try{
-        const url = googleauth.createUrl();
+        const url = await googleauth.createUrl();
         res.status(201).send(url)
     }catch(e){
         res.status(400).send(e)

@@ -13,7 +13,10 @@ router.get('/appdata', authenticate, async (req, res) => {
         res.send(data);
     } catch (error) {
         console.log(error);
-        if(error.code === 403 ) {
+        if(error?.response?.data?.error === 'invalid_grant' && error?.response?.data?.error_description === 'Token has been expired or revoked.'){
+            res.status(400).send('Google toke expired');
+        }
+        else if(error.code === 403 ) {
             res.status(403).send(error);
         }
         else{

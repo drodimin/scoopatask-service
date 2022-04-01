@@ -23,11 +23,14 @@ class UserCache {
                 return this[id];
             } else {
                 console.log(`cannot find user ${id} in cache. start loading data`);
+                
                 this[id] = new Promise((resolve, reject) => {
                      services.driveService.loadDataFromDrive(user).then(data => {
                         console.log(`finish loading data for user ${id}`);
                         resolve(new AppData(data));
-                    }).catch(error => reject(error));
+                    }).catch(error => {
+                        reject(error)
+                    });
                 })
                 return this[id];
             }

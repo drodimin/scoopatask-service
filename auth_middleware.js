@@ -33,7 +33,7 @@ const auth = async (req,res,next) => {
             }
             user = users[0];
         }
-        console.log("Authorized User", user.email);
+        console.log("Authorized Request", user.email, req);
         req.token = token
         req.user = user
         next()
